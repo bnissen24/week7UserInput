@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import axios from 'axios';
 
 import WeatherDisplay from './WeatherDisplay';
+import SearchBar from './SearchBar';
 
 const OPEN_WEATHER_API_KEY = '362a4b039038e395008ed626997d3623';
 
@@ -13,18 +14,23 @@ class App extends React.Component {
 
     this.state = {
       temp: null,
-      errorMessage: ''
+      errorMessage: '',
+      zipCode: '07950'
     };
 
     this.getTemperature = this.getTemperature.bind(this);
   }
 
   componentDidMount() {
-    this.getTemperature();
+    this.getTemperature(this.state.zipCode);
   }
 
-  getTemperature() {
-    const zipCode = '07950';
+  onSearchSubmit = (zipCode) => {
+    this.setState({ zipCode });
+    this.getTemperature(zipCode);
+  }
+
+  getTemperature(zipCode) {
     const countryCode = 'us';
     axios.get(`https://api.openweathermap.org/data/2.5/weather?zip=${zipCode},${countryCode}&appid=${OPEN_WEATHER_API_KEY}`).then(response => {
       this.setState({ temp: this.convertKelvinToFahrenheit(response.data.main.temp) })
@@ -39,7 +45,10 @@ class App extends React.Component {
 
   render() {
     return (
-      <WeatherDisplay temp={this.state.temp} />
+      <div>
+        <SearchBar onSubmit={this.onSearchSubmit}/>
+        <WeatherDisplay temp={this.state.temp} />
+      </div>
     );
   }
 }
